@@ -1,61 +1,1 @@
-package sn.ditontineplateform.domaine.entity;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Data;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-@Data
-@Entity
-@Table(name = "transactions_coffre")
-public class TransactionCoffre extends BaseEntity {
-
-    public enum TypeTransaction {
-        DEPOT, RETRAIT, AUTO_EPARGNE, OBJECTIF_ATTEINT
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coffre_id", nullable = false)
-    private Coffre coffre;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "utilisateur_id", nullable = false)
-    private User utilisateur;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TypeTransaction type;
-
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal montant;
-
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal soldeAvant;
-
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal soldeApres;
-
-    @Column(length = 500)
-    private String description;
-
-    @Column(nullable = false)
-    private LocalDateTime dateTransaction = LocalDateTime.now();
-
-    // Méthode pour initialiser une transaction
-    public void initialiserTransaction(Coffre coffre, User user, TypeTransaction type, BigDecimal montant, String description) {
-        this.coffre = coffre;
-        this.utilisateur = user;
-        this.type = type;
-        this.montant = montant;
-        this.soldeAvant = coffre.getSolde();
-        this.soldeApres = coffre.getSolde().add(montant);
-        this.description = description;
-    }
-}
+package sn.ditontineplateform.domaine.entity;import jakarta.persistence.Column;import jakarta.persistence.Entity;import jakarta.persistence.EnumType;import jakarta.persistence.Enumerated;import jakarta.persistence.FetchType;import jakarta.persistence.JoinColumn;import jakarta.persistence.ManyToOne;import jakarta.persistence.Table;import jakarta.validation.constraints.AssertTrue;import lombok.Data;import sn.ditontineplateform.domaine.enumeration.TypeTransaction;import java.math.BigDecimal;import java.time.LocalDateTime;import java.time.format.DateTimeFormatter;/** * Entité représentant une transaction sur un coffre utilisateur dans le système DiTontine. Enregistre toutes les * opérations financières (dépôts, retraits, auto-épargne) avec leur impact sur le solde. * * @author DiTontine Team * @version 1.0 * @since 2025-01-01 */@Data@Entity@Table(name = "transactions_coffre")public class TransactionCoffre extends BaseEntity {    /**     * Coffre concerné par la transaction. Relation obligatoire. Chargé en mode LAZY pour optimiser les performances.     */    @ManyToOne(fetch = FetchType.LAZY)    @JoinColumn(name = "coffre_id", nullable = false)    private Coffre coffre;    /**     * Utilisateur initiateur de la transaction. Relation obligatoire.     * Permet d'auditer qui a effectué l'opération.     */    @ManyToOne(fetch = FetchType.LAZY)    @JoinColumn(name = "utilisateur_id", nullable = false)    private User utilisateur;    /**     * Type de transaction définissant la nature de l'opération.     * @see TypeTransaction     */    @Enumerated(EnumType.STRING)    @Column(nullable = false)    private TypeTransaction type;    /**     * Montant de la transaction. Doit être positif pour un dépôt, négatif pour un retrait.     * Précision de 15 chiffres au total avec 2 décimales.     */    @Column(precision = 15, scale = 2, nullable = false)    private BigDecimal montant;    /**     * Solde du coffre avant l'opération. Enregistré pour audit et historique.     */    @Column(precision = 15, scale = 2, nullable = false)    private BigDecimal soldeAvant;    /**     * Solde du coffre après l'opération. Calculé automatiquement.     */    @Column(precision = 15, scale = 2, nullable = false)    private BigDecimal soldeApres;    /**     * Description optionnelle de la transaction (max 500 caractères).     * Peut contenir des notes ou justificatifs.     */    @Column(length = 500)    private String description;    /**     * Date et heure de la transaction. Initialisée automatiquement à la création.     */    @Column(nullable = false)    private LocalDateTime dateTransaction = LocalDateTime.now();    /**     * Initialise une nouvelle transaction avec tous ses paramètres.     * Calcule automatiquement les soldes avant/après.     *     * @param coffre Le coffre concerné par la transaction     * @param user L'utilisateur initiateur     * @param type Le type de transaction     * @param montant Le montant de l'opération (positif/négatif)     * @param description Description optionnelle     * @throws IllegalArgumentException si le coffre ou l'utilisateur est null     */    public void initialiserTransaction (            Coffre coffre, User user, TypeTransaction type,            BigDecimal montant, String description    ) {        if (coffre == null || user == null) {            throw new IllegalArgumentException("Coffre et utilisateur ne peuvent pas être null");        }        this.coffre = coffre;        this.utilisateur = user;        this.type = type;        this.montant = montant;        this.soldeAvant = coffre.getSolde();        this.soldeApres = coffre.getSolde().add(montant);        this.description = description;    }    /**     * Vérifie si la transaction est un dépôt.     *     * @return true si le montant est positif, false sinon     */    public boolean isDepot () {        return montant.compareTo(BigDecimal.ZERO) > 0;    }    /**     * Vérifie si la transaction est un retrait.     *     * @return true si le montant est négatif, false sinon     */    public boolean isRetrait () {        return montant.compareTo(BigDecimal.ZERO) < 0;    }    /**     * Retourne la valeur absolue du montant.     *     * @return le montant sans signe     */    public BigDecimal getMontantAbsolu () {        return montant.abs();    }    /**     * Génère une description automatique basée sur le type de transaction.     *     * @return la description générée     */    public String genererDescriptionAutomatique () {        return String.format(                "%s de %s %s",                type.toString(),                getMontantAbsolu().toPlainString(),                isDepot() ? "reçu" : "effectué"        );    }    /**     * Valide que le solde après transaction est cohérent.     *     * @return true si soldeAprès = soldeAvant + montant, false sinon     */    @AssertTrue(message = "Incohérence dans les soldes de la transaction")    public boolean isSoldeApresValide () {        return soldeApres.compareTo(soldeAvant.add(montant)) == 0;    }    /**     * Vérifie si la transaction est récente (moins de 24h).     *     * @return true si la transaction date de moins de 24h     */    public boolean isRecente () {        return dateTransaction.isAfter(LocalDateTime.now().minusHours(24));    }    /**     * Formatte la transaction pour l'affichage.     *     * @return une représentation lisible de la transaction     */    public String toDisplayString () {        return String.format(                "[%s] %s - %s: %s (Solde: %s → %s)",                dateTransaction.format(DateTimeFormatter.ISO_LOCAL_DATE),                type,                description != null ? description : genererDescriptionAutomatique(),                getMontantAbsolu().toPlainString(),                soldeAvant.toPlainString(),                soldeApres.toPlainString()        );    }}

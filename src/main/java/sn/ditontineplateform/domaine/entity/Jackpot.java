@@ -17,6 +17,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import sn.ditontineplateform.domaine.enumeration.StatutJackpot;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,17 +36,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "jackpots")
 public class Jackpot extends BaseEntity {
-
-    /**
-     * Statut du jackpot.
-     */
-    public enum StatutJackpot {
-        PROGRAMME,
-        ACTIVE,
-        DISTRIBUE,
-        REPORTE,
-        ANNULE
-    }
 
     /**
      * Tontine à laquelle appartient le jackpot.

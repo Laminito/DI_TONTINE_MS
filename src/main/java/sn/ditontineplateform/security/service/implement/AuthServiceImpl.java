@@ -40,7 +40,7 @@ import sn.ditontineplateform.exception.ErrorCode;
 import sn.ditontineplateform.exception.ExceptionFactory;
 import sn.ditontineplateform.security.dto.TokenResponse;
 import sn.ditontineplateform.security.service.interfaces.AuthService;
-import sn.ditontineplateform.user.dto.UserDto;
+import sn.ditontineplateform.domaine.dto.UserDto;
 import sn.ditontineplateform.utils.JwtUtil;
 import sn.ditontineplateform.utils.ResponseMessageConstants;
 

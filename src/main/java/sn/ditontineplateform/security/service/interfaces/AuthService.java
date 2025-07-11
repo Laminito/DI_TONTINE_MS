@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.keycloak.representations.idm.UserRepresentation;
 import sn.ditontineplateform.exception.CustomException;
 import sn.ditontineplateform.security.dto.TokenResponse;
-import sn.ditontineplateform.user.dto.UserDto;
+import sn.ditontineplateform.domaine.dto.UserDto;
 
 import java.util.List;
 

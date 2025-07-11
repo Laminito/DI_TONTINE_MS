@@ -19,6 +19,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import sn.ditontineplateform.domaine.enumeration.StatutParticipation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,17 +44,6 @@ import java.util.Set;
 }
 )
 public class Participation extends BaseEntity {
-
-    /**
-     * Statut de la participation.
-     */
-    public enum StatutParticipation {
-        EN_ATTENTE,
-        ACTIVE,
-        SUSPENDUE,
-        TERMINEE,
-        EXCLUE
-    }
 
     /**
      * Participant à la tontine.

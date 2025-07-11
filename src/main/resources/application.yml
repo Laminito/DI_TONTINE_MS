@@ -1,0 +1,118 @@
+server:
+  port: ${SERVER_PORT:9090}
+  tomcat:
+    max-swallow-size: -1
+  servlet:
+    context-path: ${SERVER_SERVLET_CONTEXT_PATH:/api}
+  max-http-request-header-size: 65536
+
+logging:
+  logback: ${LOGGING_LEVEL_ROOT:warn}
+  appender: ${LOGGING_APPENDER:stdout}
+  level:
+    sn.faydaapp: DEBUG
+    org.springframework.web: ERROR
+    feign:
+      client: DEBUG
+  config: ${CONFIG_LOGGING_FILE:}
+
+spring:
+  application:
+    name: Ditontine Plateform App
+  security:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  task:
+    scheduling:
+      enabled=true:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:db_ditontine_app}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      schema: ${FLYWAY_DEFAULT_SCHEMA:ditontine_app}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: false
+
+  flyway:
+    enabled: true  # Activation de Flyway
+    baseline-on-migrate: true  # Permet l'exécution sans baseline existante
+    default-schema: ${FLYWAY_DEFAULT_SCHEMA:ditontine_app}
+    schemas: ${FLYWAY_DEFAULT_SCHEMA:ditontine_app}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    placeholders:
+      defaultSchema: ${FLYWAY_DEFAULT_SCHEMA:ditontine_app}
+  codec:
+    max-in-memory-size: 50MB
+  main:
+    allow-bean-definition-overriding: true
+
+  mail:
+    properties:
+      mail:
+        debug: 'true'
+        smtp:
+          starttls:
+            enable: 'true'
+            required: 'true'
+          auth: 'true'
+    host: smtp.gmail.com
+    username: mlba25116@gmail.com
+    password: ygabyrwnpfgkgwuv
+    port: '587'
+
+  jwt:
+    secret: N_kJ*F#r1hAU&fz,ccf5BdIjA7Uo#HbM'qNu/#XkumNNqCB|ckV#s>-iDD=Kslb
+    expiration: 300  # 3 minutes'
+
+# Swagger configuration
+springdoc:
+  swagger-ui:
+    path: ${SPRINGDOC_SWAGGER_UI_PATH:/swagger-ui.html}
+    #http://localhost:9090/api/swagger-ui/index.html  Documentation des Apis
+  api-docs:
+    path: ${SPRINGDOC_API_DOCS_PATH:/api-docs}
+
+
+keycloak-client:
+  id: ${KEYCLOAK_CLIENT_ID:ditontine_client}
+  secret: ${KEYCLOAK_CLIENT_SECRET:jYLfSl5KPxPscZxW4KpCmcPDa08ExKnh}
+  uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:8080}
+  realm: ${KEYCLOAK_REALM:ditontine-realm}
+  issuer-url: ${keycloak-client.uri}/realms/${keycloak-client.realm}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: [ "health", "prometheus" ]
+
+fayda-app:
+  endpoints:
+    frontend: ${FRONTEND_URL:http://localhost:4200,http://localhost:4201,http://localhost:4202,http://localhost:4203,http://localhost:4204,http://localhost:4205}
+
